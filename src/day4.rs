@@ -23,7 +23,7 @@ impl FromStr for Pair<u32> {
             .map(|r| {
                 let (start, end) = r
                     .split('-')
-                    .map(|s| s.parse::<u32>().unwrap())
+                    .map(|s| s.parse().unwrap())
                     .collect_tuple()
                     .unwrap();
                 start..=end
