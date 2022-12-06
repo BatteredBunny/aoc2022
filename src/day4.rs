@@ -50,24 +50,22 @@ impl RangeUtils<u32> for RangeInclusive<u32> {
     }
 }
 
-pub fn part1() -> usize {
+fn logic(f: &dyn Fn(&Pair<u32>)  -> bool) -> usize {
     read_to_string("inputs/day4.txt")
         .unwrap()
         .lines()
         .map(|line| line.parse::<Pair<u32>>().unwrap())
-        .map(|pair| pair.contains())
+        .map(|pair| f(&pair))
         .filter(|contains| *contains)
         .count()
 }
 
+pub fn part1() -> usize {
+    logic(&Pair::contains)
+}
+
 pub fn part2() -> usize {
-    read_to_string("inputs/day4.txt")
-        .unwrap()
-        .lines()
-        .map(|line| line.parse::<Pair<u32>>().unwrap())
-        .map(|pair| pair.overlaps())
-        .filter(|contains| *contains)
-        .count()
+    logic(&Pair::overlaps)
 }
 
 #[cfg(test)]

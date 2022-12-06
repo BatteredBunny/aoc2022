@@ -70,7 +70,7 @@ impl FromStr for Move {
     }
 }
 
-pub fn part1() -> String {
+fn logic(execute_move: &dyn Fn(&Move, &mut [Row])) -> String {
     let (crates, moves) = read_to_string("inputs/day5.txt")
         .unwrap()
         .split("\n\n")
@@ -102,7 +102,7 @@ pub fn part1() -> String {
     }
 
     for mov in moves.lines().flat_map(Move::from_str) {
-        mov.execute(&mut rows);
+        execute_move(&mov, &mut rows);
     }
 
     rows.iter()
@@ -110,44 +110,12 @@ pub fn part1() -> String {
         .collect()
 }
 
+pub fn part1() -> String {
+    logic(&Move::execute)
+}
+
 pub fn part2() -> String {
-    let (crates, moves) = read_to_string("inputs/day5.txt")
-        .unwrap()
-        .split("\n\n")
-        .map(|part| part.to_string())
-        .collect_tuple::<(String, String)>()
-        .unwrap();
-
-    let rows_amount: usize = LAST_NUM_REGEX
-        .captures(&crates)
-        .unwrap()
-        .get(1)
-        .unwrap()
-        .as_str()
-        .parse()
-        .unwrap();
-
-    let mut rows: Vec<Row> = vec![Row::new(); rows_amount];
-
-    let mut counter = 0;
-    for line in crates.lines() {
-        for capture in CRATES_FIND_REGEX.captures_iter(line) {
-            if let Some(m) = capture.get(1) {
-                rows[counter].0.push(m.as_str().to_string());
-            }
-
-            counter += 1;
-            counter %= rows_amount;
-        }
-    }
-
-    for mov in moves.lines().flat_map(Move::from_str) {
-        mov.execute_same_order(&mut rows);
-    }
-
-    rows.iter()
-        .map(|row| row.0.first().unwrap().clone())
-        .collect()
+    logic(&Move::execute_same_order)
 }
 
 #[cfg(test)]
