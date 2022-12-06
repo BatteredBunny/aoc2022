@@ -1,5 +1,9 @@
-#![feature(test)]
-extern crate test;
+use aoc_runner_derive::aoc_lib;
+
+extern crate aoc_runner;
+
+#[macro_use]
+extern crate aoc_runner_derive;
 
 #[macro_use]
 extern crate lazy_static;
@@ -10,3 +14,5 @@ pub mod day3;
 pub mod day4;
 pub mod day5;
 pub mod day6;
+
+aoc_lib! { year = 2022 }

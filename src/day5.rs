@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, str::FromStr};
+use std::str::FromStr;
 
 use itertools::Itertools;
 use regex::Regex;
@@ -70,9 +70,8 @@ impl FromStr for Move {
     }
 }
 
-fn logic(execute_move: &dyn Fn(&Move, &mut [Row])) -> String {
-    let (crates, moves) = read_to_string("inputs/day5.txt")
-        .unwrap()
+fn logic(input: &str, execute_move: &dyn Fn(&Move, &mut [Row])) -> String {
+    let (crates, moves) = input
         .split("\n\n")
         .map(String::from)
         .collect_tuple::<(String, String)>()
@@ -105,30 +104,27 @@ fn logic(execute_move: &dyn Fn(&Move, &mut [Row])) -> String {
     rows.iter().map(|row| row.0.first().unwrap()).collect()
 }
 
-pub fn part1() -> String {
-    logic(&Move::execute)
+#[aoc(day5, part1)]
+pub fn part1(input: &str) -> String {
+    logic(input, &Move::execute)
 }
 
-pub fn part2() -> String {
-    logic(&Move::execute_same_order)
+#[aoc(day5, part2)]
+pub fn part2(input: &str) -> String {
+    logic(input, &Move::execute_same_order)
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::day5::{part1, part2};
-    use test::Bencher;
+    use std::fs::read_to_string;
 
-    use super::{logic, Move};
+    use crate::day5::{part1, part2};
 
     #[test]
-    fn day5_test() {
-        assert_eq!("FCVRLMVQP", part1());
-        assert_eq!("RWLWGJGFD", part2());
-    }
+    fn test_day5() {
+        let input = read_to_string("input/2022/day5.txt").unwrap();
 
-    #[bench]
-    fn day5_bench(b: &mut Bencher) {
-        b.iter(|| logic(&Move::execute));
-        b.iter(|| logic(&Move::execute_same_order));
+        assert_eq!("FCVRLMVQP", part1(&input));
+        assert_eq!("RWLWGJGFD", part2(&input));
     }
 }

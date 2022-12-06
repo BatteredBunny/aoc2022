@@ -1,10 +1,10 @@
-use std::{fs::read_to_string, str::FromStr};
+use std::str::FromStr;
 
 const WINNING_SCORE: i32 = 6;
 const DRAW_SCORE: i32 = 3;
 
 #[derive(PartialEq)]
-enum Move {
+pub enum Move {
     Rock,
     Paper,
     Scissors,
@@ -33,15 +33,22 @@ impl FromStr for Move {
     }
 }
 
-pub fn part1() -> i32 {
-    read_to_string("inputs/day2.txt")
-        .unwrap()
+#[aoc_generator(day2, part1)]
+fn input_generator_part1(input: &str) -> Vec<(Move, Move)> {
+    input
         .lines()
-        .map(|raw| {
+        .filter_map(|raw| {
             let mut moves = raw.split_whitespace();
-            let opponent_move: Move = moves.next().unwrap().parse().unwrap();
-            let my_move: Move = moves.next().unwrap().parse().unwrap();
+            Some((moves.next()?.parse().ok()?, moves.next()?.parse().ok()?))
+        })
+        .collect()
+}
 
+#[aoc(day2, part1)]
+pub fn part1(input: &[(Move, Move)]) -> i32 {
+    input
+        .iter()
+        .map(|(opponent_move, my_move)| {
             my_move.score()
                 + match opponent_move {
                     Move::Rock => match my_move {
@@ -64,7 +71,7 @@ pub fn part1() -> i32 {
         .sum()
 }
 
-enum WantedOutCome {
+pub enum WantedOutCome {
     Loss, // X
     Draw, // Y
     Win,  // Z
@@ -83,43 +90,52 @@ impl FromStr for WantedOutCome {
     }
 }
 
-pub fn part2() -> i32 {
-    read_to_string("inputs/day2.txt")
-        .unwrap()
+#[aoc_generator(day2, part2)]
+fn input_generator_part2(input: &str) -> Vec<(Move, WantedOutCome)> {
+    input
         .lines()
-        .map(|raw| {
+        .filter_map(|raw| {
             let mut moves = raw.split_whitespace();
-            let opponent_move: Move = moves.next().unwrap().parse().unwrap();
-            let wanted_outcome: WantedOutCome = moves.next().unwrap().parse().unwrap();
+            Some((moves.next()?.parse().ok()?, moves.next()?.parse().ok()?))
+        })
+        .collect()
+}
 
-            match opponent_move {
-                Move::Rock => match wanted_outcome {
-                    WantedOutCome::Loss => Move::Scissors.score(),
-                    WantedOutCome::Draw => Move::Rock.score() + DRAW_SCORE,
-                    WantedOutCome::Win => Move::Paper.score() + WINNING_SCORE,
-                },
-                Move::Paper => match wanted_outcome {
-                    WantedOutCome::Loss => Move::Rock.score(),
-                    WantedOutCome::Draw => Move::Paper.score() + DRAW_SCORE,
-                    WantedOutCome::Win => Move::Scissors.score() + WINNING_SCORE,
-                },
-                Move::Scissors => match wanted_outcome {
-                    WantedOutCome::Loss => Move::Paper.score(),
-                    WantedOutCome::Draw => Move::Scissors.score() + DRAW_SCORE,
-                    WantedOutCome::Win => Move::Rock.score() + WINNING_SCORE,
-                },
-            }
+#[aoc(day2, part2)]
+pub fn part2(input: &[(Move, WantedOutCome)]) -> i32 {
+    input
+        .iter()
+        .map(|(opponent_move, wanted_outcome)| match opponent_move {
+            Move::Rock => match wanted_outcome {
+                WantedOutCome::Loss => Move::Scissors.score(),
+                WantedOutCome::Draw => Move::Rock.score() + DRAW_SCORE,
+                WantedOutCome::Win => Move::Paper.score() + WINNING_SCORE,
+            },
+            Move::Paper => match wanted_outcome {
+                WantedOutCome::Loss => Move::Rock.score(),
+                WantedOutCome::Draw => Move::Paper.score() + DRAW_SCORE,
+                WantedOutCome::Win => Move::Scissors.score() + WINNING_SCORE,
+            },
+            Move::Scissors => match wanted_outcome {
+                WantedOutCome::Loss => Move::Paper.score(),
+                WantedOutCome::Draw => Move::Scissors.score() + DRAW_SCORE,
+                WantedOutCome::Win => Move::Rock.score() + WINNING_SCORE,
+            },
         })
         .sum()
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::day2::{part1, part2};
+    use std::fs::read_to_string;
+
+    use crate::day2::{input_generator_part1, input_generator_part2, part1, part2};
 
     #[test]
     fn test_day2() {
-        assert_eq!(14163, part1());
-        assert_eq!(12091, part2());
+        let raw = read_to_string("input/2022/day2.txt").unwrap();
+
+        assert_eq!(14163, part1(&input_generator_part1(&raw)));
+        assert_eq!(12091, part2(&input_generator_part2(&raw)));
     }
 }

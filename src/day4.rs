@@ -1,15 +1,15 @@
-use std::{fs::read_to_string, ops::RangeInclusive, str::FromStr};
+use std::{ops::RangeInclusive, str::FromStr};
 
 use itertools::Itertools;
 
-struct Pair<T>(RangeInclusive<T>, RangeInclusive<T>);
+pub struct Pair<T>(RangeInclusive<T>, RangeInclusive<T>);
 
 impl Pair<u32> {
-    fn contains(self) -> bool {
+    fn contains(&self) -> bool {
         self.0.contains_range(&self.1) || self.1.contains_range(&self.0)
     }
 
-    fn overlaps(self) -> bool {
+    fn overlaps(&self) -> bool {
         self.0.overlaps(&self.1) || self.1.overlaps(&self.0)
     }
 }
@@ -51,31 +51,40 @@ impl RangeUtils<u32> for RangeInclusive<u32> {
     }
 }
 
-fn logic(f: &dyn Fn(Pair<u32>) -> bool) -> usize {
-    read_to_string("inputs/day4.txt")
-        .unwrap()
-        .lines()
-        .flat_map(Pair::from_str)
-        .map(f)
+#[aoc_generator(day4)]
+fn input_generator(input: &str) -> Vec<Pair<u32>> {
+    input.lines().flat_map(Pair::from_str).collect()
+}
+
+#[aoc(day4, part1)]
+pub fn part1(input: &[Pair<u32>]) -> usize {
+    input
+        .iter()
+        .map(Pair::contains)
         .filter(|contains| *contains)
         .count()
 }
 
-pub fn part1() -> usize {
-    logic(&Pair::contains)
-}
-
-pub fn part2() -> usize {
-    logic(&Pair::overlaps)
+#[aoc(day4, part2)]
+pub fn part2(input: &[Pair<u32>]) -> usize {
+    input
+        .iter()
+        .map(Pair::overlaps)
+        .filter(|contains| *contains)
+        .count()
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::day4::{part1, part2};
+    use std::fs::read_to_string;
+
+    use crate::day4::{input_generator, part1, part2};
 
     #[test]
     fn test_day4() {
-        assert_eq!(651, part1());
-        assert_eq!(956, part2());
+        let input = input_generator(&read_to_string("input/2022/day4.txt").unwrap());
+
+        assert_eq!(651, part1(&input));
+        assert_eq!(956, part2(&input));
     }
 }
