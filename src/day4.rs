@@ -5,11 +5,11 @@ use itertools::Itertools;
 struct Pair<T>(RangeInclusive<T>, RangeInclusive<T>);
 
 impl Pair<u32> {
-    fn contains(&self) -> bool {
+    fn contains(self) -> bool {
         self.0.contains_range(&self.1) || self.1.contains_range(&self.0)
     }
 
-    fn overlaps(&self) -> bool {
+    fn overlaps(self) -> bool {
         self.0.overlaps(&self.1) || self.1.overlaps(&self.0)
     }
 }
@@ -23,9 +23,10 @@ impl FromStr for Pair<u32> {
             .map(|r| {
                 let (start, end) = r
                     .split('-')
-                    .map(|s| s.parse().unwrap())
+                    .flat_map(u32::from_str)
                     .collect_tuple()
                     .unwrap();
+
                 start..=end
             })
             .collect_tuple()
@@ -50,12 +51,12 @@ impl RangeUtils<u32> for RangeInclusive<u32> {
     }
 }
 
-fn logic(f: &dyn Fn(&Pair<u32>)  -> bool) -> usize {
+fn logic(f: &dyn Fn(Pair<u32>) -> bool) -> usize {
     read_to_string("inputs/day4.txt")
         .unwrap()
         .lines()
-        .map(|line| line.parse::<Pair<u32>>().unwrap())
-        .map(|pair| f(&pair))
+        .flat_map(Pair::from_str)
+        .map(f)
         .filter(|contains| *contains)
         .count()
 }

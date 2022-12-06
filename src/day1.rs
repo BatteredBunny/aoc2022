@@ -2,15 +2,17 @@ use std::fs::read_to_string;
 
 use itertools::Itertools;
 
+fn calculate_elf_calories(elf: &str) -> u64 {
+    elf.lines()
+        .map(|calories| calories.parse::<u64>().unwrap())
+        .sum()
+}
+
 pub fn part1() -> u64 {
     read_to_string("inputs/day1.txt")
         .unwrap()
         .split("\n\n")
-        .map(|elf| {
-            elf.lines()
-                .map(|calories| calories.parse::<u64>().unwrap())
-                .sum()
-        })
+        .map(calculate_elf_calories)
         .max()
         .unwrap()
 }
@@ -19,11 +21,7 @@ pub fn part2() -> u64 {
     read_to_string("inputs/day1.txt")
         .unwrap()
         .split("\n\n")
-        .map(|elf| {
-            elf.lines()
-                .map(|calories| calories.parse::<u64>().unwrap())
-                .sum::<u64>()
-        })
+        .map(calculate_elf_calories)
         .sorted()
         .rev()
         .take(3)

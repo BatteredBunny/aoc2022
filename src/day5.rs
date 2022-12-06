@@ -74,7 +74,7 @@ fn logic(execute_move: &dyn Fn(&Move, &mut [Row])) -> String {
     let (crates, moves) = read_to_string("inputs/day5.txt")
         .unwrap()
         .split("\n\n")
-        .map(|part| part.to_string())
+        .map(String::from)
         .collect_tuple::<(String, String)>()
         .unwrap();
 
