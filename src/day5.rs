@@ -11,17 +11,17 @@ lazy_static! {
 }
 
 #[derive(Clone)]
-struct Row(Vec<String>);
+struct Row(Vec<char>);
 
 impl Row {
-    fn append_same_order(&mut self, letters: Vec<String>) {
+    fn prepend_same_order(&mut self, letters: Vec<char>) {
         self.0 = letters
             .into_iter()
             .chain(self.0.clone().into_iter())
             .collect();
     }
 
-    fn append(&mut self, letters: Vec<String>) {
+    fn prepend(&mut self, letters: Vec<char>) {
         self.0 = letters
             .into_iter()
             .rev()
@@ -29,12 +29,12 @@ impl Row {
             .collect();
     }
 
-    fn take(&mut self, amount: usize) -> Vec<String> {
+    fn take(&mut self, amount: usize) -> Vec<char> {
         (0..amount).map(|_| self.0.remove(0)).rev().collect()
     }
 
-    fn new() -> Row {
-        Row(Vec::new())
+    fn new() -> Self {
+        Self(Vec::new())
     }
 }
 
@@ -47,12 +47,12 @@ struct Move {
 impl Move {
     fn execute_same_order(&self, modify: &mut [Row]) {
         let letters = modify[self.cur_pos - 1].take(self.amount);
-        modify[self.new_pos - 1].append_same_order(letters);
+        modify[self.new_pos - 1].prepend_same_order(letters);
     }
 
     fn execute(&self, modify: &mut [Row]) {
         let letters = modify[self.cur_pos - 1].take(self.amount);
-        modify[self.new_pos - 1].append(letters);
+        modify[self.new_pos - 1].prepend(letters);
     }
 }
 
@@ -89,25 +89,20 @@ fn logic(execute_move: &dyn Fn(&Move, &mut [Row])) -> String {
 
     let mut rows: Vec<Row> = vec![Row::new(); rows_amount];
 
-    let mut counter = 0;
-    for line in crates.lines() {
-        for capture in CRATES_FIND_REGEX.captures_iter(line) {
-            if let Some(m) = capture.get(1) {
-                rows[counter].0.push(m.as_str().to_string());
-            }
-
-            counter += 1;
-            counter %= rows_amount;
-        }
+    for (i, char) in crates.lines().flat_map(|line| {
+        CRATES_FIND_REGEX
+            .captures_iter(line)
+            .enumerate()
+            .filter_map(|(i, c)| c.get(1).map(|m| (i, m.as_str().chars().next().unwrap())))
+    }) {
+        rows[i].0.push(char);
     }
 
     for mov in moves.lines().flat_map(Move::from_str) {
         execute_move(&mov, &mut rows);
     }
 
-    rows.iter()
-        .map(|row| row.0.first().unwrap().clone())
-        .collect()
+    rows.iter().map(|row| row.0.first().unwrap()).collect()
 }
 
 pub fn part1() -> String {
@@ -121,10 +116,19 @@ pub fn part2() -> String {
 #[cfg(test)]
 mod tests {
     use crate::day5::{part1, part2};
+    use test::Bencher;
+
+    use super::{logic, Move};
 
     #[test]
-    fn test_day5() {
+    fn day5_test() {
         assert_eq!("FCVRLMVQP", part1());
         assert_eq!("RWLWGJGFD", part2());
+    }
+
+    #[bench]
+    fn day5_bench(b: &mut Bencher) {
+        b.iter(|| logic(&Move::execute));
+        b.iter(|| logic(&Move::execute_same_order));
     }
 }
