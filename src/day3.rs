@@ -2,7 +2,7 @@ use std::{fs::read_to_string, str::Chars};
 
 use itertools::Itertools;
 
-const ALPHALEN: usize = 122 + 1;
+const ALPHALEN: usize = 123;
 
 fn get_priority(c: char) -> u32 {
     if c.is_uppercase() {
