@@ -37,7 +37,7 @@ mod tests {
     use crate::day6::{part1, part2};
 
     #[test]
-    fn test_day1() {
+    fn test_day6() {
         assert_eq!(1640, part1());
         assert_eq!(3613, part2());
     }
