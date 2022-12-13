@@ -1,4 +1,5 @@
 #![feature(iter_next_chunk)]
+#![feature(let_chains)]
 use aoc_runner_derive::aoc_lib;
 
 extern crate aoc_runner;
@@ -21,5 +22,6 @@ pub mod day9;
 pub mod day10;
 pub mod day11;
 pub mod day12;
+pub mod day13;
 
 aoc_lib! { year = 2022 }
